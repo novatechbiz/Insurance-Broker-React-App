@@ -1,8 +1,14 @@
 {
   "nav": {
     "dashboards": {
-      "dashboards": "Dashboards",
-      "home": "Home"
+      "dashboards": "InsureTech",
+      "home": "Home",
+      "clients": "Clients",
+      "brokers": "Brokers",
+      "reports": "Reports",
+      "policies": "Policies",
+      "setting": "Setting",
+      "support": "Support"
     },
     "settings": {
       "settings": "Settings",
