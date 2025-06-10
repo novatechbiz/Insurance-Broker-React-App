@@ -1,15 +1,20 @@
-import axios from 'axios';
+import axios from "axios";
+import { BASE_API_URL } from "configs/url.config";
 
-import { JWT_HOST_API } from 'configs/auth.config';
-
+//const BASE_URL = process.env.REACT_APP_API_BASEURL;
+const BASE_URL = BASE_API_URL;
 
 const axiosInstance = axios.create({
-  baseURL: JWT_HOST_API,
+  baseURL: BASE_URL,
+  withCredentials: true,
 });
 
 axiosInstance.interceptors.response.use(
   (response) => response,
-  (error) => Promise.reject((error.response && error.response.data) || 'Something went wrong')
+  (error) =>
+    Promise.reject(
+      (error.response && error.response.data) || "Something went wrong",
+    ),
 );
 
 export default axiosInstance;

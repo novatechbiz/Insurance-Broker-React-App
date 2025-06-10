@@ -1,13 +1,14 @@
 // Import Dependencies
 import { useEffect, useReducer } from "react";
-import isObject from "lodash/isObject";
+// import isObject from "lodash/isObject";
+// import isString from "lodash/isString";
 import PropTypes from "prop-types";
-import isString from "lodash/isString";
 
 // Local Imports
 import axios from "utils/axios";
 import { isTokenValid, setSession } from "utils/jwt";
 import { AuthContext } from "./context";
+import { useLogin } from "api";
 
 // ----------------------------------------------------------------------
 
@@ -30,12 +31,11 @@ const reducerHandlers = {
     };
   },
 
-  LOGIN_REQUEST: (state) => {
-    return {
-      ...state,
-      isLoading: true,
-    };
-  },
+  LOGIN_REQUEST: (state) => ({
+    ...state,
+    isLoading: true,
+    errorMessage: null,
+  }),
 
   LOGIN_SUCCESS: (state, action) => {
     const { user } = action.payload;
@@ -47,15 +47,11 @@ const reducerHandlers = {
     };
   },
 
-  LOGIN_ERROR: (state, action) => {
-    const { errorMessage } = action.payload;
-
-    return {
-      ...state,
-      errorMessage,
-      isLoading: false,
-    };
-  },
+  LOGIN_ERROR: (state, action) => ({
+    ...state,
+    errorMessage: action.payload.errorMessage,
+    isLoading: false,
+  }),
 
   LOGOUT: (state) => ({
     ...state,
@@ -66,100 +62,78 @@ const reducerHandlers = {
 
 const reducer = (state, action) => {
   const handler = reducerHandlers[action.type];
-  if (handler) {
-    return handler(state, action);
-  }
-  return state;
+  return handler ? handler(state, action) : state;
 };
 
 export function AuthProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const { mutate: loginMutation } = useLogin();
 
   useEffect(() => {
-    const init = async () => {
-      try {
-        const authToken = window.localStorage.getItem("authToken");
+    const authToken = localStorage.getItem("authToken");
 
-        if (authToken && isTokenValid(authToken)) {
-          setSession(authToken);
-
-          const response = await axios.get("/user/profile");
-          const { user } = response.data;
-
-          dispatch({
-            type: "INITIALIZE",
-            payload: {
-              isAuthenticated: true,
-              user,
-            },
-          });
-        } else {
-          dispatch({
-            type: "INITIALIZE",
-            payload: {
-              isAuthenticated: false,
-              user: null,
-            },
-          });
-        }
-      } catch (err) {
-        console.error(err);
-        dispatch({
-          type: "INITIALIZE",
-          payload: {
-            isAuthenticated: false,
-            user: null,
-          },
-        });
-      }
-    };
-
-    init();
-  }, []);
-
-  const login = async ({ username, password }) => {
-    dispatch({
-      type: "LOGIN_REQUEST",
-    });
-
-    try {
-      const response = await axios.post("/login", {
-        username,
-        password,
+    if (authToken && isTokenValid(authToken)) {
+      setSession(authToken);
+      axios.interceptors.request.use((config) => {
+        config.headers.Authorization = `Bearer ${authToken}`;
+        return config;
       });
 
-      const { authToken, user } = response.data;
-
-      if (!isString(authToken) && !isObject(user)) {
-        throw new Error("Response is not vallid");
-      }
-
-      setSession(authToken);
-
       dispatch({
-        type: "LOGIN_SUCCESS",
+        type: "INITIALIZE",
         payload: {
-          user,
+          isAuthenticated: true,
+          user: JSON.parse(localStorage.getItem("user")) || null,
         },
       });
-    } catch (err) {
+    } else {
+      setSession(null);
       dispatch({
-        type: "LOGIN_ERROR",
+        type: "INITIALIZE",
         payload: {
-          errorMessage: err,
+          isAuthenticated: false,
+          user: null,
         },
       });
     }
+  }, []);
+
+  const login = (credentials) => {
+    dispatch({ type: "LOGIN_REQUEST" });
+
+    loginMutation(credentials, {
+      onSuccess: (res) => {
+        const { token, user } = res;
+
+        localStorage.setItem("authToken", token);
+        localStorage.setItem("user", JSON.stringify(user));
+        setSession(token);
+
+        dispatch({
+          type: "LOGIN_SUCCESS",
+          payload: { user },
+        });
+      },
+      onError: (err) => {
+        dispatch({
+          type: "LOGIN_ERROR",
+          payload: {
+            errorMessage: err?.response?.data?.message || "Login failed",
+          },
+        });
+      },
+    });
   };
 
-  const logout = async () => {
+  const logout = () => {
     setSession(null);
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("user");
+
     dispatch({ type: "LOGOUT" });
   };
 
-  if (!children) {
-    return null;
-  }
+  if (!children) return null;
 
   return (
     <AuthContext
