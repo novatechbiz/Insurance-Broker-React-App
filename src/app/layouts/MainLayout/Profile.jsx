@@ -5,16 +5,14 @@ import {
   PopoverPanel,
   Transition,
 } from "@headlessui/react";
-import {
-  ArrowLeftStartOnRectangleIcon,
-  Cog6ToothIcon,
-} from "@heroicons/react/24/outline";
-import { TbCoins, TbUser } from "react-icons/tb";
+import { ArrowLeftStartOnRectangleIcon } from "@heroicons/react/24/outline";
+import { TbUser } from "react-icons/tb";
 import { Link } from "react-router";
 
 // Local Imports
 import { Avatar, AvatarDot, Button } from "components/ui";
-
+import { useAuthContext } from "app/contexts/auth/context";
+import { toast } from "sonner";
 // ----------------------------------------------------------------------
 
 const links = [
@@ -26,25 +24,27 @@ const links = [
     Icon: TbUser,
     color: "warning",
   },
-  {
-    id: "4",
-    title: "Billing",
-    description: "Your billing information",
-    to: "/settings/billing",
-    Icon: TbCoins,
-    color: "error",
-  },
-  {
-    id: "5",
-    title: "Settings",
-    description: "Webapp settings",
-    to: "/settings/appearance",
-    Icon: Cog6ToothIcon,
-    color: "success",
-  },
+  // {
+  //   id: "4",
+  //   title: "Billing",
+  //   description: "Your billing information",
+  //   to: "/settings/billing",
+  //   Icon: TbCoins,
+  //   color: "error",
+  // },
+  // {
+  //   id: "5",
+  //   title: "Settings",
+  //   description: "Webapp settings",
+  //   to: "/settings/appearance",
+  //   Icon: Cog6ToothIcon,
+  //   color: "success",
+  // },
 ];
 
 export function Profile() {
+  const { logout, user } = useAuthContext();
+
   return (
     <Popover className="relative">
       <PopoverButton
@@ -75,17 +75,13 @@ export function Profile() {
           {({ close }) => (
             <>
               <div className="dark:bg-dark-800 flex items-center gap-4 rounded-t-lg bg-gray-100 px-4 py-5">
-                <Avatar
-                  size={14}
-                  src="/images/100x100.png"
-                  alt="Profile"
-                />
+                <Avatar size={14} src="/images/100x100.png" alt="Profile" />
                 <div>
                   <Link
                     className="hover:text-primary-600 focus:text-primary-600 dark:text-dark-100 dark:hover:text-primary-400 dark:focus:text-primary-400 text-base font-medium text-gray-700"
                     to="/settings/general"
                   >
-                    Travis Fuller
+                    {user.name}
                   </Link>
 
                   <p className="dark:text-dark-300 mt-0.5 text-xs text-gray-400">
@@ -119,7 +115,23 @@ export function Profile() {
                   </Link>
                 ))}
                 <div className="px-4 pt-4">
-                  <Button className="w-full gap-2">
+                  <Button
+                    className="w-full gap-2"
+                    onClick={() =>
+                      logout({
+                        onSuccess: () => {
+                          toast.success("Logged out successfully", {
+                            description: "You have been signed out.",
+                          });
+                        },
+                        onError: () => {
+                          toast.error("Logout failed", {
+                            description: "Please try again later.",
+                          });
+                        },
+                      })
+                    }
+                  >
                     <ArrowLeftStartOnRectangleIcon className="size-4.5" />
                     <span>Logout</span>
                   </Button>

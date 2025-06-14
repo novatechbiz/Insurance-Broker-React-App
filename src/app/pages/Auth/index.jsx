@@ -47,7 +47,6 @@ export default function SignIn() {
         console.log("Login success:", res);
         toast.success("Login successful", {
           description: "Welcome back!",
-          duration: 4000,
         });
       },
       onError: (err) => {
