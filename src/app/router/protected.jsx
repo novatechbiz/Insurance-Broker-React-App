@@ -35,6 +35,20 @@ const protectedRoutes = {
             },
           ],
         },
+        {
+          index: true,
+          element: <Navigate to="/customer-registrations" />,
+        },
+        {
+          path: "customer-registrations",
+          lazy: async () => ({
+            Component: (
+              await import(
+                "/src/app/pages/customer-registrations/CustomerRegistration"
+              )
+            ).default,
+          }),
+        },
       ],
     },
     // The app layout supports only the main layout. Avoid using it for other layouts.
