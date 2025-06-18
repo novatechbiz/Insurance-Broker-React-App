@@ -22,6 +22,10 @@ export default function Toaster() {
         notification?.visibleToasts || defaultTheme?.notification?.visibleToasts
       }
       richColors
+      toastOptions={{
+        className: "soft-color",
+        duration: 3000,
+      }}
     />
   );
 }
