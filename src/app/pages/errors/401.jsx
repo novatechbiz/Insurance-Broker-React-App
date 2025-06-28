@@ -2,6 +2,9 @@
 import Authorize from "assets/illustrations/authorize.svg?react";
 import { Page } from "components/shared/Page";
 import { useThemeContext } from "app/contexts/theme/context";
+import { Button } from "components/ui";
+import { Link } from "react-router";
+import { useHover } from "hooks";
 
 // ----------------------------------------------------------------------
 
@@ -12,6 +15,7 @@ export default function Error401() {
     darkColorScheme: dark,
     isDark,
   } = useThemeContext();
+  const [btnRef, btnHovered] = useHover();
 
   return (
     <Page title="Error 401">
@@ -24,15 +28,27 @@ export default function Error401() {
               "--dark-500": isDark ? dark[500] : light[700],
             }}
           />
-          <p className="pt-4 text-7xl font-bold text-primary-600 dark:text-primary-500">
+          <p className="text-primary-600 dark:text-primary-500 pt-4 text-7xl font-bold">
             401
           </p>
-          <p className="pt-4 text-xl font-semibold text-gray-800 dark:text-dark-50">
+          <p className="dark:text-dark-50 pt-4 text-xl font-semibold text-gray-800">
             You are not authorized
           </p>
-          <p className="text-balance pt-2 text-gray-500 dark:text-dark-200">
+          <p className="dark:text-dark-200 pt-2 text-balance text-gray-500">
             You are missing the required rights to be able to access this page
           </p>
+          <div className="mt-8">
+            <Button
+              component={Link}
+              to="/"
+              ref={btnRef}
+              isGlow={btnHovered}
+              color="primary"
+              className="h-11 text-base"
+            >
+              Back
+            </Button>
+          </div>
         </div>
       </main>
     </Page>

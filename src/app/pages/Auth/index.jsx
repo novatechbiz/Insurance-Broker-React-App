@@ -40,6 +40,7 @@ export default function SignIn() {
     const loginCredentials = {
       username: data.username,
       password: data.password,
+      rememberMe: data.rememberMe,
     };
 
     login(loginCredentials, {
@@ -75,6 +76,7 @@ export default function SignIn() {
           className="absolute inset-0 h-full w-full object-cover"
         />
       </div>
+
       <div className="border-gray-150 dark:bg-dark-700 flex w-full flex-col items-center bg-white lg:max-w-md ltr:border-l rtl:border-r dark:border-transparent">
         <div className="flex w-full max-w-sm grow flex-col justify-center p-5">
           <div className="text-center">
@@ -130,9 +132,9 @@ export default function SignIn() {
                 error={errors?.password?.message}
               />
               <div className="flex items-center justify-between space-x-2">
-                <Checkbox label="Remember me" />
+                <Checkbox label="Remember me" {...register("rememberMe")} />
                 <a
-                  href="##"
+                  href="/forgot-password"
                   className="dark:text-dark-300 dark:hover:text-dark-100 dark:focus:text-dark-100 text-xs text-gray-400 transition-colors hover:text-gray-800 focus:text-gray-800"
                 >
                   Forgot Password?
