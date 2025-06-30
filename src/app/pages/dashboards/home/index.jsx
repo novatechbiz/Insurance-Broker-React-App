@@ -1,6 +1,11 @@
+import { useAuthContext } from "app/contexts/auth/context";
 import { Page } from "components/shared/Page";
 
 export default function Home() {
+  const { isAuthenticated } = useAuthContext();
+
+  console.log("isAuthenticated in home: ", isAuthenticated);
+
   return (
     <Page title="Homepage">
       <div className="transition-content w-full px-(--margin-x) pt-5 lg:pt-6">

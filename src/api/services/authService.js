@@ -14,3 +14,13 @@ export const refreshToken = async () => {
   const { data } = await axios.post("/refresh-token");
   return data;
 };
+
+export const forgetPassword = async (credentials) => {
+  const { data } = await axios.post("/forgot-password", credentials);
+  return data;
+};
+
+export const resetPassword = async (credentials) => {
+  const { data } = await axios.post("/reset-password", credentials);
+  return data;
+};

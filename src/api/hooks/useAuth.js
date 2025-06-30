@@ -1,6 +1,12 @@
 import { useMutation } from "@tanstack/react-query";
 import { authKeys } from "api/keys/authKeys";
-import { loginUser, logoutUser, refreshToken } from "api/services/authService";
+import {
+  forgetPassword,
+  loginUser,
+  logoutUser,
+  refreshToken,
+  resetPassword,
+} from "api/services/authService";
 
 export const useLogin = () => {
   return useMutation({
@@ -20,5 +26,19 @@ export const useRefreshToken = () => {
   return useMutation({
     mutationKey: authKeys.refreshToken,
     mutationFn: refreshToken,
+  });
+};
+
+export const useForgetPassword = () => {
+  return useMutation({
+    mutationKey: authKeys.forgetPassword,
+    mutationFn: forgetPassword,
+  });
+};
+
+export const useResetPassword = () => {
+  return useMutation({
+    mutationKey: authKeys.resetPassword,
+    mutationFn: resetPassword,
   });
 };
