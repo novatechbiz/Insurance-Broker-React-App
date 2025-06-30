@@ -1,14 +1,12 @@
 // Import Dependencies
 import { useEffect, useReducer } from "react";
-// import isObject from "lodash/isObject";
-// import isString from "lodash/isString";
 import PropTypes from "prop-types";
 
 // Local Imports
 import axios from "utils/axios";
 import { isTokenValid, setSession } from "utils/jwt";
 import { AuthContext } from "./context";
-import { useLogin, useLogout, useRefreshToken } from "api";
+import { useLogin, useLogout, useRefreshToken, useResetPassword } from "api";
 
 // ----------------------------------------------------------------------
 
@@ -63,6 +61,23 @@ const reducerHandlers = {
     ...state,
     errorMessage: action.payload.errorMessage,
   }),
+
+  RESET_PASSWORD_REQUEST: (state) => ({
+    ...state,
+    isLoading: true,
+    errorMessage: null,
+  }),
+
+  RESET_PASSWORD_SUCCESS: (state) => ({
+    ...state,
+    isLoading: false,
+  }),
+
+  RESET_PASSWORD_ERROR: (state, action) => ({
+    ...state,
+    errorMessage: action.payload.errorMessage,
+    isLoading: false,
+  }),
 };
 
 const reducer = (state, action) => {
@@ -75,6 +90,7 @@ export function AuthProvider({ children }) {
   const { mutate: loginMutation } = useLogin();
   const { mutate: logoutMutation } = useLogout();
   const { mutateAsync: refreshAsync } = useRefreshToken();
+  const { mutate: resetPasswordMutation } = useResetPassword();
 
   useEffect(() => {
     const initializeAuth = async () => {
@@ -226,6 +242,29 @@ export function AuthProvider({ children }) {
     });
   };
 
+  const resetPassword = (credentials, callbacks = {}) => {
+    const { onSuccess, onError } = callbacks;
+
+    dispatch({ type: "RESET_PASSWORD_REQUEST" });
+
+    resetPasswordMutation(credentials, {
+      onSuccess: (res) => {
+        dispatch({ type: "RESET_PASSWORD_SUCCESS" });
+        if (onSuccess) onSuccess(res);
+      },
+      onError: (err) => {
+        dispatch({
+          type: "RESET_PASSWORD_ERROR",
+          payload: {
+            errorMessage:
+              err?.response?.data?.message || "Reset password failed",
+          },
+        });
+        if (onError) onError(err);
+      },
+    });
+  };
+
   if (!children) return null;
 
   return (
@@ -234,6 +273,7 @@ export function AuthProvider({ children }) {
         ...state,
         login,
         logout,
+        resetPassword,
       }}
     >
       {children}

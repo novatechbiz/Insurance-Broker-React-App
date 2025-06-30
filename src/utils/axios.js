@@ -1,8 +1,7 @@
 import axios from "axios";
-import { BASE_API_URL } from "configs/url.config";
 
-//const BASE_URL = process.env.REACT_APP_API_BASEURL;
-const BASE_URL = BASE_API_URL;
+const BASE_URL = import.meta.env.VITE_API_BASEURL;
+console.log("API Base URL: ", BASE_URL);
 
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
