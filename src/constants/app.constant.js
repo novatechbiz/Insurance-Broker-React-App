@@ -4,6 +4,7 @@ export const APP_KEY = "ibms";
 // Redirect Paths
 export const REDIRECT_URL_KEY = "redirect";
 export const HOME_PATH = "/";
+
 export const GHOST_ENTRY_PATH = "/login";
 
 // Navigation Types
